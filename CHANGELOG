@@ -1,3 +1,7 @@
+2011-04-15 Added `math_to_image` function to mathtext which takes a
+           math expression and converts it to any of the output image
+           formats supported by matplotlib.
+
 2011-03-29 Wrapped ViewVCCachedServer definition in a factory function.
            This class now inherits from urllib2.HTTPSHandler in order
            to fetch data from github, but HTTPSHandler is not defined
