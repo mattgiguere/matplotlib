@@ -891,7 +891,7 @@ RendererAgg::draw_text_image(const Py::Tuple& args)
     args.verify_length(5);
 
     const unsigned char* buffer = NULL;
-    int width, height;
+    int text_width, text_height;
     Py::Object image_obj = args[0];
 
     if (PyArray_Check(image_obj.ptr()))
@@ -905,8 +905,8 @@ RendererAgg::draw_text_image(const Py::Tuple& args)
         }
         image_obj = Py::Object(image_array, true);
         buffer = (unsigned char *)PyArray_DATA(image_array);
-        width = PyArray_DIM(image_array, 1);
-        height = PyArray_DIM(image_array, 0);
+        text_width = PyArray_DIM(image_array, 1);
+        text_height = PyArray_DIM(image_array, 0);
     }
     else
     {
@@ -917,8 +917,8 @@ RendererAgg::draw_text_image(const Py::Tuple& args)
                 "First argument to draw_text_image must be a FT2Font.Image object or a Nx2 uint8 numpy array.");
         }
         buffer = image->get_buffer();
-        width = image->get_width();
-        height = image->get_height();
+        text_width = image->get_width();
+        text_height = image->get_height();
     }
 
     int x(0), y(0);
@@ -936,40 +936,67 @@ RendererAgg::draw_text_image(const Py::Tuple& args)
 
     GCAgg gc(args[4], dpi);
 
-    theRasterizer.reset_clipping();
-    rendererBase.reset_clipping(true);
-    set_clipbox(gc.cliprect, theRasterizer);
-
-    agg::rendering_buffer srcbuf((agg::int8u*)buffer, width, height, width);
+    agg::rendering_buffer srcbuf((agg::int8u*)buffer, text_width, text_height, text_width);
     agg::pixfmt_gray8 pixf_img(srcbuf);
-
-    agg::trans_affine mtx;
-    mtx *= agg::trans_affine_translation(0, -height);
-    mtx *= agg::trans_affine_rotation(-angle * agg::pi / 180.0);
-    mtx *= agg::trans_affine_translation(x, y);
-
-    agg::path_storage rect;
-    rect.move_to(0, 0);
-    rect.line_to(width, 0);
-    rect.line_to(width, height);
-    rect.line_to(0, height);
-    rect.line_to(0, 0);
-    agg::conv_transform<agg::path_storage> rect2(rect, mtx);
-
-    agg::trans_affine inv_mtx(mtx);
-    inv_mtx.invert();
-
-    agg::image_filter_lut filter;
-    filter.calculate(agg::image_filter_spline36());
-    interpolator_type interpolator(inv_mtx);
-    color_span_alloc_type sa;
     image_accessor_type ia(pixf_img, 0);
-    image_span_gen_type image_span_generator(ia, interpolator, filter);
-    span_gen_type output_span_generator(&image_span_generator, gc.color);
-    renderer_type ri(rendererBase, sa, output_span_generator);
 
-    theRasterizer.add_path(rect2);
-    agg::render_scanlines(theRasterizer, slineP8, ri);
+    if (angle != 0.0) {
+        theRasterizer.reset_clipping();
+        rendererBase.reset_clipping(true);
+        set_clipbox(gc.cliprect, theRasterizer);
+
+        agg::trans_affine mtx;
+        mtx *= agg::trans_affine_translation(0, -text_height);
+        mtx *= agg::trans_affine_rotation(-angle * agg::pi / 180.0);
+        mtx *= agg::trans_affine_translation(x, y);
+
+        agg::path_storage rect;
+        rect.move_to(0, 0);
+        rect.line_to(text_width, 0);
+        rect.line_to(text_width, text_height);
+        rect.line_to(0, text_height);
+        rect.line_to(0, 0);
+        agg::conv_transform<agg::path_storage> rect2(rect, mtx);
+
+        agg::trans_affine inv_mtx(mtx);
+        inv_mtx.invert();
+
+        agg::image_filter_lut filter;
+        filter.calculate(agg::image_filter_spline36());
+        interpolator_type interpolator(inv_mtx);
+        color_span_alloc_type sa;
+        image_span_gen_type image_span_generator(ia, interpolator, filter);
+        span_gen_type output_span_generator(&image_span_generator, gc.color);
+        renderer_type ri(rendererBase, sa, output_span_generator);
+
+        theRasterizer.add_path(rect2);
+        agg::render_scanlines(theRasterizer, slineP8, ri);
+    } else {
+        agg::rgba8 color(gc.color);
+
+        double l, b, r, t;
+        agg::rect_i clip, text;
+        if (py_convert_bbox(gc.cliprect.ptr(), l, b, r, t))
+        {
+            clip.init(std::max(int(mpl_round(l)), 0),
+                      std::max(int(height) - int(mpl_round(b)), 0),
+                      std::min(int(mpl_round(r)), int(width)),
+                      std::min(int(height) - int(mpl_round(t)), int(height)));
+        }
+        else
+        {
+            clip.init(0, 0, width, height);
+        }
+
+        text.init(x, y-text_height, x+text_width, y);
+        text.clip(clip);
+
+        for (int j = text.y1 - (y-text_height), yi = text.y1; yi < text.y2; ++j, ++yi) {
+            for (int i = text.x1 - x, xi = text.x1; xi < text.x2; ++i, ++xi) {
+                pixFmt.blend_pixel(xi, yi, color, std::max((int)pixf_img.pixel(i, j).v - 1, 0));
+            }
+        }
+    }
 
     return Py::Object();
 }
