@@ -214,6 +214,10 @@ void GlyphToType3::PSConvert(TTStreamWriter& stream)
         // on-path point midway between them.
         std::list<FlaggedPoint> points;
 
+        if (epts_ctr[k] == 0) {
+            continue;
+        }
+
         // Represent flags and x/y coordinates as a C++ list
         for (; j <= epts_ctr[k]; j++)
         {
