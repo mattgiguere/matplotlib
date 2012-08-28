@@ -308,7 +308,7 @@ def compare_images( expected, actual, tol, in_decorator=False ):
 
    diff_image = make_test_filename(actual, 'failed-diff')
 
-   if ( (rms / 10000.0) <= tol ):
+   if rms <= tol:
       if os.path.exists(diff_image):
          os.unlink(diff_image)
       return None
@@ -326,7 +326,7 @@ def compare_images( expected, actual, tol, in_decorator=False ):
    else:
       # old-style call from mplTest directory
       msg = "  Error: Image files did not match.\n"       \
-            "  RMS Value: " + str( rms / 10000.0 ) + "\n" \
+            "  RMS Value: " + str( rms ) + "\n" \
             "  Expected:\n    " + str( expected ) + "\n"  \
             "  Actual:\n    " + str( actual ) + "\n"      \
             "  Difference:\n    " + str( diff_image ) + "\n"      \
