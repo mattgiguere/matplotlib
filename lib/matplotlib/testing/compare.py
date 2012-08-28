@@ -285,37 +285,26 @@ def compare_images( expected, actual, tol, in_decorator=False ):
 
    actualImage, expectedImage = crop_to_same(actual, actualImage, expected, expectedImage)
 
-   # compare the resulting image histogram functions
-   expected_version = version.LooseVersion("1.6")
-   found_version = version.LooseVersion(np.__version__)
+   # convert to signed integers, so that the images can be subtracted without
+   # overflow
+   expectedImage = expectedImage.astype(np.int32)
+   actualImage = actualImage.astype(np.int32)
+
+   # calculate the per-pixel errors, then compute the root mean square error
+   num_values = reduce(operator.mul, expectedImage.shape)
+   absDiffImage = abs(expectedImage - actualImage)
 
    # On Numpy 1.6, we can use bincount with minlength, which is much faster than
    # using histogram
+   expected_version = version.LooseVersion("1.6")
+   found_version = version.LooseVersion(np.__version__)
    if found_version >= expected_version:
-      rms = 0
-
-      for i in xrange(0, 3):
-         h1p = expectedImage[:,:,i]
-         h2p = actualImage[:,:,i]
-
-         h1h = np.bincount(h1p.ravel(), minlength=256)
-         h2h = np.bincount(h2p.ravel(), minlength=256)
-
-         rms += np.sum(np.power((h1h-h2h), 2))
+      histogram = np.bincount(absDiffImage.ravel(), minlength=256)
    else:
-      rms = 0
-      bins = np.arange(257)
+      histogram = np.histogram(absDiffImage, bins=np.arange(257))[0]
 
-      for i in xrange(0, 3):
-         h1p = expectedImage[:,:,i]
-         h2p = actualImage[:,:,i]
-
-         h1h = np.histogram(h1p, bins=bins)[0]
-         h2h = np.histogram(h2p, bins=bins)[0]
-
-         rms += np.sum(np.power((h1h-h2h), 2))
-
-   rms = np.sqrt(rms / (256 * 3))
+   sumOfSquares = sum(count*(i**2) for i, count in enumerate(histogram))
+   rms = np.sqrt(float(sumOfSquares) / num_values)
 
    diff_image = make_test_filename(actual, 'failed-diff')
 
