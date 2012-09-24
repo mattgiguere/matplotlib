@@ -287,8 +287,8 @@ def compare_images( expected, actual, tol, in_decorator=False ):
 
    # convert to signed integers, so that the images can be subtracted without
    # overflow
-   expectedImage = expectedImage.astype(np.int32)
-   actualImage = actualImage.astype(np.int32)
+   expectedImage = expectedImage.astype(np.int16)
+   actualImage = actualImage.astype(np.int16)
 
    # calculate the per-pixel errors, then compute the root mean square error
    num_values = np.prod(expectedImage.shape)
