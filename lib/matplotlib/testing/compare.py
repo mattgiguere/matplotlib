@@ -303,7 +303,7 @@ def compare_images( expected, actual, tol, in_decorator=False ):
    else:
       histogram = np.histogram(absDiffImage, bins=np.arange(257))[0]
 
-   sumOfSquares = sum(count*(i**2) for i, count in enumerate(histogram))
+   sumOfSquares = np.sum(histogram * np.arange(len(histogram))**2)
    rms = np.sqrt(float(sumOfSquares) / num_values)
 
    diff_image = make_test_filename(actual, 'failed-diff')
