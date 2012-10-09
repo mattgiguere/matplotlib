@@ -192,7 +192,6 @@ distrib = setup(name="matplotlib",
       interfaces and hardcopy output formats.  There is a 'pylab' mode
       which emulates matlab graphics.
       """,
-      install_requires=['dateutils'],
       license="BSD",
       packages=packages,
       platforms='any',
@@ -201,6 +200,9 @@ distrib = setup(name="matplotlib",
       package_dir=package_dir,
       package_data=package_data,
       classifiets=classifiers,
+
+      # List third-party Python packages that we require
+      install_requires=['dateutils', 'pyparsing'],
 
       # Automatically 2to3 source on Python 3.x
       use_2to3=True,
