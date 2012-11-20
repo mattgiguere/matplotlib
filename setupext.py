@@ -718,6 +718,9 @@ class FreeType(SetupPackage):
     name = "freetype"
 
     def check(self):
+        if sys.platform == 'win32':
+            return "Unknown version"
+
         status, output = getstatusoutput("freetype-config --version")
         if status == 0:
             version = output
