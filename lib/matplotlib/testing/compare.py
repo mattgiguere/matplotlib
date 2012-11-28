@@ -314,8 +314,10 @@ def compare_images( expected, actual, tol, in_decorator=False ):
       expected = convert(expected, True)
 
    # open the image files and remove the alpha channel (if it exists)
-   expectedImage = _png.read_png_int( expected )
-   actualImage = _png.read_png_int( actual )
+   with open(expected, 'rb') as fd:
+       expectedImage = _png.read_png_int(fd)
+   with open(actual, 'rb') as fd:
+       actualImage = _png.read_png_int(fd)
 
    actualImage, expectedImage = crop_to_same(actual, actualImage, expected, expectedImage)
 
@@ -368,8 +370,10 @@ def compare_images( expected, actual, tol, in_decorator=False ):
       return msg
 
 def save_diff_image( expected, actual, output ):
-   expectedImage = _png.read_png( expected )
-   actualImage = _png.read_png( actual )
+   with open(expected, 'rb') as fd:
+       expectedImage = _png.read_png(fd)
+   with open(actual, 'rb') as fd:
+       actualImage = _png.read_png(fd)
    actualImage, expectedImage = crop_to_same(actual, actualImage, expected, expectedImage)
    expectedImage = np.array(expectedImage).astype(np.float)
    actualImage = np.array(actualImage).astype(np.float)
@@ -392,4 +396,5 @@ def save_diff_image( expected, actual, output ):
    # Hard-code the alpha channel to fully solid
    save_image_np[:,:,3] = 255
 
-   _png.write_png(save_image_np.tostring(), width, height, output)
+   with open(output, 'wb') as fd:
+       _png.write_png(save_image_np.tostring(), width, height, fd)

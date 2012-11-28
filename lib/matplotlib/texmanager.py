@@ -544,7 +544,8 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
 
         if alpha is None:
             pngfile = self.make_png(tex, fontsize, dpi)
-            X = read_png(os.path.join(self.texcache, pngfile))
+            with open(os.path.join(self.texcache, pngfile), 'rb') as fd:
+                X = read_png(fd)
 
             if rcParams['text.dvipnghack'] is not None:
                 hack = rcParams['text.dvipnghack']

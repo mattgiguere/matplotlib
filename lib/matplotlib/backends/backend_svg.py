@@ -763,7 +763,7 @@ class RendererSVG(RendererBase):
             bytesio = io.BytesIO()
             im.flipud_out()
             rows, cols, buffer = im.as_rgba_str()
-            _png.write_png(buffer, cols, rows, bytesio)
+            _png.write_png(buffer, int(cols), int(rows), bytesio)
             im.flipud_out()
             oid = oid or self._make_id('image', bytesio)
             attrib['xlink:href'] = (
@@ -775,7 +775,8 @@ class RendererSVG(RendererBase):
             verbose.report( 'Writing image file for inclusion: %s' % filename)
             im.flipud_out()
             rows, cols, buffer = im.as_rgba_str()
-            _png.write_png(buffer, cols, rows, filename)
+            with open(filename, 'wb') as fd:
+                _png.write_png(buffer, int(cols), int(rows), fd)
             im.flipud_out()
             oid = oid or 'Im_' + self._make_id('image', filename)
             attrib[u'xlink:href'] = filename

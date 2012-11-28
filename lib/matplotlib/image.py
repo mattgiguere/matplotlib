@@ -400,7 +400,11 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
             im.resize(numcols, numrows)
         im.flipud_out()
         rows, cols, buffer = im.as_rgba_str()
-        _png.write_png(buffer, cols, rows, fname)
+        if cbook.is_string_like(fname):
+            with open(fname, 'wb') as fd:
+                _png.write_png(buffer, cols, rows, fd)
+        else:
+            _png.write_png(buffer, cols, rows, fname)
 
     def set_data(self, A):
         """
@@ -1020,7 +1024,11 @@ class FigureImage(martist.Artist, cm.ScalarMappable):
         """Write the image to png file with fname"""
         im = self.make_image()
         rows, cols, buffer = im.as_rgba_str()
-        _png.write_png(buffer, cols, rows, fname)
+        if cbook.is_string_like(fname):
+            with open(fname, 'wb') as fd:
+                _png.write_png(buffer, cols, rows, fd)
+        else:
+            _png.write_png(buffer, cols, rows, fname)
 
 
 class BboxImage(_AxesImageBase):
@@ -1078,7 +1086,7 @@ class BboxImage(_AxesImageBase):
 
     def contains(self, mouseevent):
         """Test whether the mouse event occured within the image."""
-        if callable(self._contains): 
+        if callable(self._contains):
             return self._contains(self, mouseevent)
 
         if not self.get_visible():# or self.get_figure()._renderer is None:

@@ -3092,7 +3092,11 @@ class MathTextParser(object):
         """
         rgba, depth = self.to_rgba(texstr, color=color, dpi=dpi, fontsize=fontsize)
         numrows, numcols, tmp = rgba.shape
-        _png.write_png(rgba.tostring(), numcols, numrows, filename)
+        if is_string_like(filename):
+            with open(filename, 'wb') as fd:
+                _png.write_png(rgba.tostring(), numcols, numrows, fd)
+        else:
+            _png.write_png(rgba.tostring(), numcols, numrows, filename)
         return depth
 
     def get_depth(self, texstr, dpi=120, fontsize=14):

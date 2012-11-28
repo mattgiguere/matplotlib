@@ -585,7 +585,8 @@ class RendererPgf(RendererBase):
         self.image_counter += 1
         im.flipud_out()
         rows, cols, buf = im.as_rgba_str()
-        _png.write_png(buf, cols, rows, os.path.join(path, fname_img))
+        with open(os.path.join(path, fname_img), 'wb') as fd:
+            _png.write_png(buf, int(cols), int(rows), fd)
 
         # reference the image in the pgf picture
         writeln(self.fh, r"\begin{pgfscope}")

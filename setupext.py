@@ -767,13 +767,12 @@ class Png(SetupPackage):
 
     def get_extension(self):
         sources = [
-            'src/_png.cpp', 'src/mplutils.cpp'
+            'src/_png.cpp', 'src/_png_wrap.cpp', 'src/mplutils.cpp'
             ]
         ext = make_extension('matplotlib._png', sources)
         pkg_config.setup_extension(
             ext, 'libpng', default_libraries=['png', 'z'])
         Numpy().add_flags(ext)
-        CXX().add_flags(ext)
         return ext
 
 
