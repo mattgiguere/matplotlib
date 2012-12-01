@@ -222,7 +222,7 @@ def make_extension(name, files, *args, **kwargs):
     Any additional arguments are passed to the
     `distutils.core.Extension` constructor.
     """
-    ext = Extension(name, files, *args, **kwargs)
+    ext = Extension(name, files, *args, language='c++', **kwargs)
     for dir in get_base_dirs():
         include_dir = os.path.join(dir, 'include')
         if os.path.exists(include_dir):
@@ -766,9 +766,15 @@ class Png(SetupPackage):
             min_version='1.2')
 
     def get_extension(self):
+        # To build Cython version, uncomment the following
         sources = [
-            'src/_png.cpp', 'src/_png_wrap.cpp', 'src/mplutils.cpp'
+            'src/_png_core.cpp', 'src/_png.pyx', 'src/mplutils.cpp'
             ]
+
+        # To build C++ version, uncomment the following
+        # sources = [
+        #     'src/_png_core.cpp', 'src/_png_wrap.cpp', 'src/mplutils.cpp'
+        #     ]
         ext = make_extension('matplotlib._png', sources)
         pkg_config.setup_extension(
             ext, 'libpng', default_libraries=['png', 'z'])

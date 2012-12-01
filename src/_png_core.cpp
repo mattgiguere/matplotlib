@@ -1,6 +1,7 @@
 /* -*- mode: c++; c-basic-offset: 4 -*- */
 
-#include "_png.h"
+#include "_png_core.h"
+
 
 // this code is heavily adapted from the paint license, which is in
 // the file paint.license (BSD compatible) included in this

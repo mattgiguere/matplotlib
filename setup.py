@@ -33,6 +33,8 @@ try:
 except ImportError:
     from distutils.core import setup
 
+from Cython.Distutils import build_ext
+
 import setupext
 from setupext import print_line, print_raw, print_message, print_status
 
@@ -209,6 +211,8 @@ if __name__ == '__main__':
           package_dir=package_dir,
           package_data=package_data,
           classifiers=classifiers,
+          # Add Cython support
+          cmdclass={'build_ext': build_ext},
 
           # List third-party Python packages that we require
           install_requires=install_requires,

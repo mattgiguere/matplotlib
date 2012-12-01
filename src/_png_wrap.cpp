@@ -7,7 +7,7 @@
 #include "Python.h"
 #include "mplutils.h"
 #include "numpy/arrayobject.h"
-#include "_png.h"
+#include "_png_core.h"
 
 
 static void write_png_callback(png_structp png_ptr, png_bytep data,
