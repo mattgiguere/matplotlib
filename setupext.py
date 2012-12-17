@@ -766,15 +766,9 @@ class Png(SetupPackage):
             min_version='1.2')
 
     def get_extension(self):
-        # To build Cython version, uncomment the following
         sources = [
-            'src/_png_core.cpp', 'src/_png.pyx', 'src/mplutils.cpp'
+            'src/_png_core.cpp', 'src/_png_wrap.cpp', 'src/mplutils.cpp'
             ]
-
-        # To build C++ version, uncomment the following
-        # sources = [
-        #     'src/_png_core.cpp', 'src/_png_wrap.cpp', 'src/mplutils.cpp'
-        #     ]
         ext = make_extension('matplotlib._png', sources)
         pkg_config.setup_extension(
             ext, 'libpng', default_libraries=['png', 'z'])
