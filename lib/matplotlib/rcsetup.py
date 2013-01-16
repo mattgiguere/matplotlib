@@ -20,13 +20,13 @@ from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
 from matplotlib.colors import is_color_like
 
 #interactive_bk = ['gtk', 'gtkagg', 'gtkcairo', 'fltkagg', 'qtagg', 'qt4agg',
-#                  'tkagg', 'wx', 'wxagg', 'cocoaagg']
+#                  'tkagg', 'wx', 'wxagg', 'cocoaagg', 'webagg']
 # The capitalized forms are needed for ipython at present; this may
 # change for later versions.
 
 interactive_bk = ['GTK', 'GTKAgg', 'GTKCairo', 'FltkAgg', 'MacOSX',
                   'QtAgg', 'Qt4Agg', 'TkAgg', 'WX', 'WXAgg', 'CocoaAgg',
-                  'GTK3Cairo', 'GTK3Agg']
+                  'GTK3Cairo', 'GTK3Agg', 'WebAgg']
 
 
 non_interactive_bk = ['agg', 'cairo', 'emf', 'gdk',
@@ -257,6 +257,15 @@ validate_verbose = ValidateInStrings('verbose',[
 
 def deprecate_savefig_extension(value):
     warnings.warn("savefig.extension is deprecated.  Use savefig.format instead.")
+    return value
+
+def update_savefig_format(value):
+    # The old savefig.extension could also have a value of "auto", but
+    # the new savefig.format does not.  We need to fix this here.
+    value = str(value)
+    if value == 'auto':
+        value = 'png'
+    return value
 
 validate_ps_papersize = ValidateInStrings('ps_papersize',[
     'auto', 'letter', 'legal', 'ledger',
@@ -327,7 +336,10 @@ validate_pgf_texsystem = ValidateInStrings('pgf.texsystem',
                                            ['xelatex', 'lualatex', 'pdflatex'])
 
 validate_movie_writer = ValidateInStrings('animation.writer',
-    ['ffmpeg', 'ffmpeg_file', 'mencoder', 'mencoder_file'])
+    ['ffmpeg', 'ffmpeg_file',
+     'avconv', 'avconv_file',
+     'mencoder', 'mencoder_file',
+     'imagemagick', 'imagemagick_file'])
 
 validate_movie_frame_fmt = ValidateInStrings('animation.frame_format',
     ['png', 'jpeg', 'tiff', 'raw', 'rgba'])
@@ -375,6 +387,9 @@ defaultParams = {
     'backend'           : ['Agg', validate_backend], # agg is certainly present
     'backend_fallback'  : [True, validate_bool], # agg is certainly present
     'backend.qt4'       : ['PyQt4', validate_qt4],
+    'webagg.port'       : [8988, validate_int],
+    'webagg.open_in_browser' : [True, validate_bool],
+    'webagg.port_retries' : [50, validate_int],
     'toolbar'           : ['toolbar2', validate_toolbar],
     'datapath'          : [None, validate_path_exists],   # handled by _get_data_path_cached
     'interactive'       : [False, validate_bool],
@@ -499,6 +514,7 @@ defaultParams = {
     'legend.loc'         : ['upper right',validate_legend_loc], # at some point, this should be changed to 'best'
     'legend.isaxes'      : [True,validate_bool],  # this option is internally ignored - it never served any useful purpose
     'legend.numpoints'   : [2, validate_int],     # the number of points in the legend line
+    'legend.scatterpoints' : [3, validate_int],     # the number of points in the legend line for scatter
     'legend.fontsize'    : ['large', validate_fontsize],
     'legend.markerscale' : [1.0, validate_float], # the relative size of legend markers vs. original
     'legend.shadow'        : [False, validate_bool],
@@ -566,7 +582,7 @@ defaultParams = {
     'savefig.edgecolor'   : ['w', validate_color],  # edgecolor; white
     'savefig.orientation' : ['portrait', validate_orientation],  # edgecolor; white
     'savefig.extension'   : ['png', deprecate_savefig_extension], # what to add to extensionless filenames
-    'savefig.format'      : ['png', str], # value checked by backend at runtime
+    'savefig.format'      : ['png', update_savefig_format], # value checked by backend at runtime
     'savefig.bbox'        : [None, validate_bbox], # options are 'tight', or 'standard'. 'standard' validates to None.
     'savefig.pad_inches'  : [0.1, validate_float],
 
@@ -616,6 +632,9 @@ defaultParams = {
     'keymap.xscale' : [['k', 'L'], validate_stringlist],
     'keymap.all_axes' : ['a', validate_stringlist],
 
+    # sample data
+    'examples.directory' : ['', str],
+
     # Animation settings
     'animation.writer' : ['ffmpeg', validate_movie_writer],
     'animation.codec' : ['mpeg4', str],
@@ -623,8 +642,12 @@ defaultParams = {
     'animation.frame_format' : ['png', validate_movie_frame_fmt], # Controls image format when frames are written to disk
     'animation.ffmpeg_path' : ['ffmpeg', str], # Path to FFMPEG binary. If just binary name, subprocess uses $PATH.
     'animation.ffmpeg_args' : ['', validate_stringlist], # Additional arguments for ffmpeg movie writer (using pipes)
-    'animation.mencoder_path' : ['mencoder', str], # Path to FFMPEG binary. If just binary name, subprocess uses $PATH.
+    'animation.avconv_path' : ['avconv', str], # Path to AVConv binary. If just binary name, subprocess uses $PATH.
+    'animation.avconv_args' : ['', validate_stringlist], # Additional arguments for avconv movie writer (using pipes)
+    'animation.mencoder_path' : ['mencoder', str], # Path to MENCODER binary. If just binary name, subprocess uses $PATH.
     'animation.mencoder_args' : ['', validate_stringlist], # Additional arguments for mencoder movie writer (using pipes)
+    'animation.convert_path' : ['convert', str], # Path to convert binary. If just binary name, subprocess uses $PATH
+    'animation.convert_args' : ['', validate_stringlist], # Additional arguments for mencoder movie writer (using pipes)
 }
 
 if __name__ == '__main__':

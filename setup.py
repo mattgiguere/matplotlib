@@ -48,7 +48,8 @@ from setupext import build_agg, build_gtkagg, build_tkagg,\
      check_for_qt, check_for_qt4, check_for_pyside, check_for_cairo, \
      check_provide_pytz, check_provide_dateutil,\
      check_for_dvipng, check_for_ghostscript, check_for_latex, \
-     check_for_pdftops, options, build_png, build_tri, check_provide_six
+     check_for_pdftops, options, build_png, build_tri, check_provide_six, \
+     check_for_tornado
 
 
 packages = [
@@ -117,6 +118,12 @@ package_data = {'matplotlib':['mpl-data/fonts/afm/*.afm',
                               'mpl-data/sample_data/*.*',
                               'mpl-data/sample_data/axes_grid/*.*',
                               'backends/Matplotlib.nib/*',
+                              'backends/web_backend/*.*',
+                              'backends/web_backend/jquery/js/*',
+                              'backends/web_backend/jquery/css/themes/base/*.*',
+                              'backends/web_backend/jquery/css/themes/base/images/*',
+                              'backends/web_backend/css/*.*',
+
                               ]}
 
 package_dir = {'': 'lib'}
@@ -196,6 +203,7 @@ check_for_qt()
 check_for_qt4()
 check_for_pyside()
 check_for_cairo()
+check_for_tornado()
 
 print_raw("")
 print_raw("OPTIONAL DATE/TIMEZONE DEPENDENCIES")
@@ -322,6 +330,7 @@ distrib = setup(name="matplotlib",
       interfaces and hardcopy output formats.  There is a 'pylab' mode
       which emulates matlab graphics
       """,
+      download_url="https://downloads.sourceforge.net/project/matplotlib/matplotlib/matplotlib-{0}/matplotlib-{0}.tar.gz".format(__version__),
       packages = packages,
       platforms='any',
       py_modules = py_modules,

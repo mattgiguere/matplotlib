@@ -99,7 +99,7 @@ to MATLAB&reg;, a registered trademark of The MathWorks, Inc.
 """
 from __future__ import print_function
 
-__version__  = '1.2.0'
+__version__  = '1.3.x'
 __version__numpy__ = '1.4' # minimum required numpy version
 
 import os, re, shutil, subprocess, sys, warnings
@@ -121,6 +121,20 @@ if 0:
 
 if not hasattr(sys, 'argv'):  # for modpython
     sys.argv = ['modpython']
+
+
+class MatplotlibDeprecationWarning(UserWarning):
+    """
+    A class for issuing deprecation warnings for Matplotlib users.
+
+    In light of the fact that Python builtin DeprecationWarnings are ignored
+    by default as of Python 2.7 (see link below), this class was put in to
+    allow for the signaling of deprecation, but via UserWarnings which are not
+    ignored by default.
+
+    http://docs.python.org/dev/whatsnew/2.7.html#the-future-for-python-2-x
+    """
+    pass
 
 """
 Manage user customizations through a rc file.
@@ -823,6 +837,20 @@ Please do not ask for support with these customizations active.
 # this is the instance used by the matplotlib classes
 rcParams = rc_params()
 
+if rcParams['examples.directory']:
+    # paths that are intended to be relative to matplotlib_fname()
+    # are allowed for the examples.directory parameter.
+    # However, we will need to fully qualify the path because
+    # Sphinx requires absolute paths.
+    if not os.path.isabs(rcParams['examples.directory']):
+        _basedir, _fname = os.path.split(matplotlib_fname())
+        # Sometimes matplotlib_fname() can return relative paths,
+        # Also, using realpath() guarentees that Sphinx will use
+        # the same path that matplotlib sees (in case of weird symlinks).
+        _basedir = os.path.realpath(_basedir)
+        _fullpath = os.path.join(_basedir, rcParams['examples.directory'])
+        rcParams['examples.directory'] = _fullpath
+
 rcParamsOrig = rcParams.copy()
 
 rcParamsDefault = RcParams([ (key, default) for key, (default, converter) in \
@@ -999,9 +1027,18 @@ def use(arg, warn=True, force=False):
     :func:`matplotlib.get_backend`.
 
     """
+    # Lets determine the proper backend name first
+    if arg.startswith('module://'):
+        name = arg
+    else:
+        # Lowercase only non-module backend names (modules are case-sensitive)
+        arg = arg.lower()
+        name = validate_backend(arg)
+
     # Check if we've already set up a backend
     if 'matplotlib.backends' in sys.modules:
-        if warn:
+        # Warn only if called with a different name
+        if (rcParams['backend'] != name) and warn:
             warnings.warn(_use_error_msg)
 
         # Unless we've been told to force it, just return
@@ -1011,14 +1048,7 @@ def use(arg, warn=True, force=False):
     else:
         need_reload = False
 
-    # Set-up the proper backend name
-    if arg.startswith('module://'):
-        name = arg
-    else:
-        # Lowercase only non-module backend names (modules are case-sensitive)
-        arg = arg.lower()
-        name = validate_backend(arg)
-
+    # Store the backend name
     rcParams['backend'] = name
 
     # If needed we reload here because a lot of setup code is triggered on
@@ -1071,15 +1101,18 @@ default_test_modules = [
     'matplotlib.tests.test_backend_svg',
     'matplotlib.tests.test_backend_pgf',
     'matplotlib.tests.test_basic',
+    'matplotlib.tests.test_bbox_tight',
     'matplotlib.tests.test_cbook',
     'matplotlib.tests.test_colorbar',
     'matplotlib.tests.test_colors',
     'matplotlib.tests.test_compare_images',
+    'matplotlib.tests.test_contour',
     'matplotlib.tests.test_dates',
     'matplotlib.tests.test_delaunay',
     'matplotlib.tests.test_figure',
     'matplotlib.tests.test_image',
     'matplotlib.tests.test_legend',
+    'matplotlib.tests.test_lines',
     'matplotlib.tests.test_mathtext',
     'matplotlib.tests.test_mlab',
     'matplotlib.tests.test_patches',
@@ -1088,6 +1121,7 @@ default_test_modules = [
     'matplotlib.tests.test_scale',
     'matplotlib.tests.test_simplification',
     'matplotlib.tests.test_spines',
+    'matplotlib.tests.test_streamplot',
     'matplotlib.tests.test_subplots',
     'matplotlib.tests.test_text',
     'matplotlib.tests.test_ticker',

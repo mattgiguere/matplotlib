@@ -1847,9 +1847,10 @@ class YAxis(Axis):
                                size=rcParams['axes.labelsize'],
                                weight=rcParams['axes.labelweight']),
             color=rcParams['axes.labelcolor'],
-            verticalalignment='center',
-            horizontalalignment='right',
+            verticalalignment='bottom',
+            horizontalalignment='center',
             rotation='vertical',
+            rotation_mode='anchor',
             )
         label.set_transform(mtransforms.blended_transform_factory(
             mtransforms.IdentityTransform(), self.axes.transAxes))
@@ -1886,10 +1887,12 @@ class YAxis(Axis):
         ACCEPTS: [ 'left' | 'right' ]
         """
         assert position == 'left' or position == 'right'
-        if position == 'right':
-            self.label.set_horizontalalignment('left')
+        self.label.set_rotation_mode('anchor')
+        self.label.set_horizontalalignment('center')
+        if position == 'left':
+            self.label.set_verticalalignment('bottom')
         else:
-            self.label.set_horizontalalignment('right')
+            self.label.set_verticalalignment('top')
         self.label_position = position
 
     def _update_label_position(self, bboxes, bboxes2):
