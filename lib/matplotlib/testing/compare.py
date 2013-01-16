@@ -319,20 +319,6 @@ def compare_images( expected, actual, tol, in_decorator=False ):
          os.unlink(diff_image)
       return None
 
-   # For Agg-rendered images, we can retry by ignoring pixels with
-   # differences of only 1
-   if extension == 'png':
-       # Remove differences of only 1
-       diffImage = np.abs(actualImage - expectedImage)
-       actualImage = np.where(diffImage <= 1, expectedImage, actualImage)
-
-       rms = calculate_rms(expectedImage, actualImage)
-
-       if rms <= tol:
-           if os.path.exists(diff_image):
-               os.unlink(diff_image)
-           return None
-
    save_diff_image( expected, actual, diff_image )
 
    if in_decorator:
