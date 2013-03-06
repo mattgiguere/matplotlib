@@ -53,6 +53,7 @@
 #define M_PI_2     1.57079632679489661923
 #endif
 
+#define UPSCALE 2
 
 /*
  Convert dashes from the Python representation as nested sequences to
@@ -380,11 +381,11 @@ const size_t
 RendererAgg::PIXELS_PER_INCH(96);
 
 
-RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi,
-                         int debug) :
-    width(width),
-    height(height),
-    dpi(dpi),
+RendererAgg::RendererAgg(unsigned int width_, unsigned int height_, double dpi_,
+                         int debug_) :
+    width(width_ * UPSCALE),
+    height(height_ * UPSCALE),
+    dpi(dpi_ * UPSCALE),
     NUMBYTES(width*height*4),
     pixBuffer(NULL),
     renderingBuffer(),
@@ -402,7 +403,7 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi,
     rendererAA(),
     rendererBin(),
     theRasterizer(),
-    debug(debug)
+    debug(debug_)
 {
     _VERBOSE("RendererAgg::RendererAgg");
     unsigned stride(width*4);
@@ -444,6 +445,10 @@ RendererAgg::set_clipbox(const Py::Object& cliprect, R& rasterizer)
     double l, b, r, t;
     if (py_convert_bbox(cliprect.ptr(), l, b, r, t))
     {
+        l *= UPSCALE;
+        b *= UPSCALE;
+        r *= UPSCALE;
+        t *= UPSCALE;
         rasterizer.clip_box(std::max(int(floor(l - 0.5)), 0),
                             std::max(int(floor(height - b - 0.5)), 0),
                             std::min(int(floor(r - 0.5)), int(width)),
@@ -614,6 +619,7 @@ RendererAgg::render_clippath(const Py::Object& clippath,
         agg::trans_affine trans(clippath_trans);
         trans *= agg::trans_affine_scaling(1.0, -1.0);
         trans *= agg::trans_affine_translation(0.0, (double)height);
+        trans *= agg::trans_affine_scaling(UPSCALE, UPSCALE);
 
         PathIterator clippath_iter(clippath);
         rendererBaseAlphaMask.clear(agg::gray8(0, 0));
@@ -666,6 +672,7 @@ RendererAgg::draw_markers(const Py::Tuple& args)
     marker_trans *= agg::trans_affine_scaling(1.0, -1.0);
     trans *= agg::trans_affine_scaling(1.0, -1.0);
     trans *= agg::trans_affine_translation(0.5, (double)height + 0.5);
+    trans *= agg::trans_affine_scaling(UPSCALE, UPSCALE);
 
     PathIterator       marker_path(marker_path_obj);
     transformed_path_t marker_path_transformed(marker_path, marker_trans);
@@ -971,6 +978,7 @@ RendererAgg::draw_text_image(const Py::Tuple& args)
     mtx *= agg::trans_affine_translation(0, -height);
     mtx *= agg::trans_affine_rotation(-angle * agg::pi / 180.0);
     mtx *= agg::trans_affine_translation(x, y);
+    mtx *= agg::trans_affine_scaling(UPSCALE, UPSCALE);
 
     agg::path_storage rect;
     rect.move_to(0, 0);
@@ -1405,6 +1413,7 @@ RendererAgg::draw_path(const Py::Tuple& args)
     set_clipbox(gc.cliprect, theRasterizer);
     bool has_clippath = render_clippath(gc.clippath, gc.clippath_trans);
 
+    trans *= agg::trans_affine_scaling(UPSCALE, UPSCALE);
     trans *= agg::trans_affine_scaling(1.0, -1.0);
     trans *= agg::trans_affine_translation(0.0, (double)height);
     bool clip = !face.first && gc.hatchpath.isNone() && !path.has_curves();
@@ -1707,6 +1716,8 @@ RendererAgg::draw_path_collection(const Py::Tuple& args)
     std::string             offset_position  = Py::String(args[12]);
 
     bool data_offsets = (offset_position == "data");
+
+    master_transform *= agg::trans_affine_scaling(UPSCALE, UPSCALE);
 
     try
     {

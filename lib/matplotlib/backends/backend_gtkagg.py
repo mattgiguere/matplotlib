@@ -91,7 +91,8 @@ class FigureCanvasGTKAgg(FigureCanvasGTK, FigureCanvasAgg):
         h = int(ren.height)
 
         pixbuf = gtk.gdk.pixbuf_new_from_data(
-            buf, gtk.gdk.COLORSPACE_RGB,  True, 8, w, h, w*4)
+            buf, gtk.gdk.COLORSPACE_RGB, True, 8, w * 2, h * 2, w*4*2)
+        pixbuf = pixbuf.scale_simple(w, h, gtk.gdk.INTERP_BILINEAR)
         pixmap.draw_pixbuf(pixmap.new_gc(), pixbuf, 0, 0, 0, 0, w, h,
                            gtk.gdk.RGB_DITHER_NONE, 0, 0)
         if DEBUG: print('FigureCanvasGTKAgg.render_figure done')
