@@ -23,4 +23,5 @@ install:
 script:
   - mkdir ../tmp_test_dir
   - cd ../tmp_test_dir
-  - python ../matplotlib/tests.py -sv
+  - python -c "from matplotlib.tests import test_artist"
+#  - python ../matplotlib/tests.py -sv
