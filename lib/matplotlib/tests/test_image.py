@@ -264,7 +264,7 @@ def test_image_composite_alpha():
     ax.set_ylim([5, 0])
 
 
-@image_comparison(baseline_images=['rasterize_10dpi'], extensions=['pdf','svg'], tol=1.5e-3, remove_text=True)
+#@image_comparison(baseline_images=['rasterize_10dpi'], extensions=['pdf','svg'], tol=1.5e-3, remove_text=True)
 def test_rasterize_dpi():
     # This test should check rasterized rendering with high output resolution.
     # It plots a rasterized line and a normal image with implot. So it will catch
@@ -287,6 +287,13 @@ def test_rasterize_dpi():
     axes[2].set(xlim = (0,1), ylim = (-1, 2))
 
     rcParams['savefig.dpi'] = 10
+
+    import io
+    x = io.BytesIO()
+    fig.savefig(x, format='svg')
+    print(x.getvalue())
+
+    assert False
 
 
 if __name__=='__main__':
