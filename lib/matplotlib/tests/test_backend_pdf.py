@@ -3,6 +3,7 @@
 from matplotlib import rcParams
 from matplotlib import pyplot as plt
 from matplotlib.testing.decorators import image_comparison, knownfailureif, cleanup
+import os
 
 @image_comparison(baseline_images=['pdf_use14corefonts'], extensions=['pdf'])
 def test_use14corefonts():
@@ -24,12 +25,27 @@ def test_use14corefonts():
              fontsize=24)
     plt.axhline(0.5, linewidth=0.5)
 
+@cleanup
 def test_lookup():
+    rcParams['pdf.use14corefonts'] = True
+    rcParams['font.family'] = 'sans-serif'
+    rcParams['font.size'] = 8
+    rcParams['font.sans-serif'] = ['Helvetica']
+
     text = plt.text(0.5, 0.5, "Some text", horizontalalignment='center',
              verticalalignment='bottom',
              fontsize=24)
     from matplotlib import font_manager
     print(font_manager.findfont(text._fontproperties, fontext='afm'))
+    filename = font_manager.findfont(
+        text._fontproperties, fontext='afm', directory=os.path.join(
+            rcParams['datapath'], 'fonts', 'pdfcorefonts'))
+    print(filename)
+    filename = font_manager.findfont(
+            "Helvetica", fontext='afm',
+            directory=os.path.join(
+            rcParams['datapath'], 'fonts', 'pdfcorefonts'))
+    print(filename)
     assert False
 
 

@@ -627,7 +627,6 @@ RendererAgg::render_clippath(const Py::Object& clippath,
                              const agg::trans_affine& clippath_trans)
 {
     typedef agg::conv_transform<PathIterator> transformed_path_t;
-    typedef agg::conv_curve<transformed_path_t> curve_t;
 
     bool has_clippath = (clippath.ptr() != Py_None);
 
@@ -671,7 +670,6 @@ RendererAgg::draw_markers(const Py::Tuple& args)
     typedef agg::pixfmt_amask_adaptor<pixfmt, alpha_mask_type> pixfmt_amask_type;
     typedef agg::renderer_base<pixfmt_amask_type>              amask_ren_type;
     typedef agg::renderer_scanline_aa_solid<amask_ren_type>    amask_aa_renderer_type;
-    typedef agg::renderer_scanline_bin_solid<amask_ren_type>   amask_bin_renderer_type;
     args.verify_length(5, 6);
 
     Py::Object        gc_obj          = args[0];
@@ -930,7 +928,6 @@ RendererAgg::draw_text_image(const Py::Tuple& args)
 {
     _VERBOSE("RendererAgg::draw_text");
 
-    typedef agg::span_allocator<agg::gray8> gray_span_alloc_type;
     typedef agg::span_allocator<agg::rgba8> color_span_alloc_type;
     typedef agg::span_interpolator_linear<> interpolator_type;
     typedef agg::image_accessor_clip<agg::pixfmt_gray8> image_accessor_type;
@@ -2054,8 +2051,6 @@ RendererAgg::draw_gouraud_triangles(const Py::Tuple& args)
     args.verify_length(4);
 
     typedef agg::rgba8                      color_t;
-    typedef agg::span_gouraud_rgba<color_t> span_gen_t;
-    typedef agg::span_allocator<color_t>    span_alloc_t;
 
     GCAgg             gc(args[0], dpi);
     Py::Object        points_obj = args[1];
