@@ -33,7 +33,7 @@ def test_type42():
 
     rcParams['pdf.fonttype'] = 42
 
-    fig = plt.figure()
+    fig =  plt.figure()
     ax = fig.add_subplot(111)
     ax.plot([1,2,3])
     fig.savefig(io.BytesIO())
