@@ -22,10 +22,16 @@ def test_use14corefonts():
     text = plt.text(0.5, 0.5, text, horizontalalignment='center',
              verticalalignment='bottom',
              fontsize=24)
+    plt.axhline(0.5, linewidth=0.5)
+
+def test_lookup():
+    text = plt.text(0.5, 0.5, "Some text", horizontalalignment='center',
+             verticalalignment='bottom',
+             fontsize=24)
     from matplotlib import font_manager
     print(font_manager.findfont(text._fontproperties, fontext='afm'))
     assert False
-    plt.axhline(0.5, linewidth=0.5)
+
 
 @cleanup
 def test_type42():
