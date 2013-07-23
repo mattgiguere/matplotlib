@@ -952,8 +952,6 @@ distribution""" % (key, cnt, fname), file=sys.stderr)
     return config
 
 
-
-
 def rc_params_from_file(fname, fail_on_error=False):
     """Return :class:`matplotlib.RcParams` from the contents of the given file.
 
