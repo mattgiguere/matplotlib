@@ -541,6 +541,7 @@ class Matplotlib(SetupPackage):
             'matplotlib.projections',
             'matplotlib.axes',
             'matplotlib.sphinxext',
+            'matplotlib.style',
             'matplotlib.testing',
             'matplotlib.testing.jpl_units',
             'matplotlib.tri',
@@ -573,7 +574,8 @@ class Matplotlib(SetupPackage):
                 'backends/web_backend/jquery/css/themes/base/*.*',
                 'backends/web_backend/jquery/css/themes/base/images/*',
                 'backends/web_backend/css/*.*',
-                'backends/Matplotlib.nib/*'
+                'backends/Matplotlib.nib/*',
+                'style/stylelib/*.mplstyle',
              ]}
 
 
