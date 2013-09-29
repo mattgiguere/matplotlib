@@ -53,6 +53,25 @@ Controls whether figures are saved with a transparent
 background by default.  Previously `savefig` always defaulted
 to a non-transparent background.
 
+
+``style`` package added
+```````````````````````
+You can now easily switch between different styles using the new ``style``
+package::
+
+   >>> from matplotlib import style
+   >>> style.use('dark_background')
+
+Subsequent plots will use updated colors, sizes, etc. To list all available
+styles, use::
+
+   >>> print style.available
+
+You can add your own custom ``<style name>.mplstyle`` files to
+``~/.matplotlib/stylelib`` or call ``use`` with a URL pointing to a file with
+``matplotlibrc`` settings.
+
+
 .. _whats-new-1-3:
 
 new in matplotlib-1.3
